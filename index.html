@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Reservation Tracker</h1>
+
+        <form id="reservationForm">
+            <div class="form-group hidden">
+                <label for="date">Date:</label>
+                <input type="text" id="date" name="date" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="time">Time:</label>
+                <input type="text" id="time" name="time" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="agentName">Agent Name:</label>
+                <input type="text" id="agentName" name="agentName" value="Enrico Tatad Jr." readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="dk">DK:</label>
+                <input type="text" id="dk" name="dk" value="AMN100" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="pcc">PCC:</label>
+                <input type="text" id="pcc" name="pcc" value="F75G" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="ahFee">AH Fee:</label>
+                <input type="text" id="ahFee" name="ahFee" value="No" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="ptr">PTR:</label>
+                <input type="text" id="ptr" name="ptr">
+            </div>
+
+            <div class="form-group">
+                <label for="passengerName">Passenger Name:</label>
+                <input type="text" id="passengerName" name="passengerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="callerName">Caller Name:</label>
+                <input type="text" id="callerName" name="callerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pnr">PNR:</label>
+                <input type="text" id="pnr" name="pnr" required>
+            </div>
+
+            <div class="form-group">
+                <label for="source">Source:</label>
+                <select id="source" name="source">
+                    <option value="Email">Email</option>
+                    <option value="Service Call">Service Call</option>
+                    <option value="Queue">Queue</option>
+                    <option value="Salesforce">Salesforce</option>
+                    <option value="Outbound Call">Outbound Call</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="transaction">Transaction:</label>
+                <select id="transaction" name="transaction">
+                    <option value="Airline Schedule Change">Airline Schedule Change</option>
+                    <option value="Exchange">Exchange</option>
+                    <option value="Cancellation / Void">Cancellation / Void</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Ghost Call">Ghost Call</option>
+                    <option value="PTR Cancelled">PTR Cancelled</option>
+                    <option value="Reconfirmation / Follow up">Reconfirmation / Follow up</option>
+                    <option value="Payment Issue">Payment Issue</option>
+                    <option value="New Booking">New Booking</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Remarks:</label>
+                <textarea id="remarks" name="remarks" rows="3"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="add">Add Reservation</button>
+                <button type="button" class="copy-table" id="copyTable">Copy Table</button>
+                <button type="button" class="clear" id="clearAll">Clear All</button>
+                <button type="button" class="undo" id="undoLast">Undo</button>
+            </div>
+        </form>
+
+        <table id="reservationTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>PTR</th>
+                    <th>Agent Name</th>
+                    <th>Passenger Name</th>
+                    <th>Caller Name</th>
+                    <th>DK</th>
+                    <th>PCC</th>
+                    <th>PNR</th>
+                    <th>Source</th>
+                    <th>Transaction</th>
+                    <th>AH Fee</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
