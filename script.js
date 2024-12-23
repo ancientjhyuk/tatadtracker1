@@ -5,7 +5,7 @@ const clearAllButton = document.getElementById('clearAll');
 const undoLastButton = document.getElementById('undoLast');
 
 let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
-let removedReservations = [];  // Track multiple removed reservations
+let removedReservations = [];  // Track removed reservations for undo
 
 // Function to get current date and time in Central Time
 function updateCentralTime() {
@@ -15,12 +15,19 @@ function updateCentralTime() {
     return { date, time };
 }
 
+// Function to update date and time fields
 function updateTimestamps() {
     const { date, time } = updateCentralTime();
     document.getElementById('date').value = date;
     document.getElementById('time').value = time;
 }
 
+// Update timestamps when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    updateTimestamps();
+});
+
+// Handle form submission
 reservationForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(reservationForm);
@@ -29,7 +36,7 @@ reservationForm.addEventListener('submit', (e) => {
         newReservation[key] = value;
     }
 
-    // Ensure date and time are updated for the first reservation
+    // Automatically update date and time if not provided
     if (!newReservation.date || !newReservation.time) {
         updateTimestamps(); // Set the current time and date on form submission
         newReservation.date = document.getElementById('date').value;
@@ -38,80 +45,92 @@ reservationForm.addEventListener('submit', (e) => {
 
     reservations.push(newReservation);
     localStorage.setItem('reservations', JSON.stringify(reservations));
-
     addReservationToTable(newReservation);
-
     reservationForm.reset();
-    updateTimestamps();  // Reset time and date after adding new reservation
+    updateTimestamps(); // Update time after submitting
 });
 
 function addReservationToTable(reservation) {
     const row = document.createElement('tr');
-    for (const key in reservation) {
-        const cell = document.createElement('td');
-        cell.textContent = reservation[key];
-        row.appendChild(cell);
-    }
 
-    const removeCell = document.createElement('td');
+    // Add table data in the required order
+    const columns = [
+        reservation.date,  // Date
+        reservation.time,  // Time
+        reservation.ptr,   // PTR
+        reservation.agentName || 'Enrico Tatad Jr.',  // Agent Name
+        reservation.passengerName,  // Passenger Name
+        reservation.callerName,     // Caller Name
+        'AMN100',  // DK (fixed value)
+        'F75G',     // PCC (fixed value)
+        reservation.pnr,  // PNR
+        reservation.source,  // Source
+        reservation.transaction || 'N/A',  // Transaction (Optional)
+        'No',  // AH Fee (fixed value)
+        reservation.remarks  // Remarks
+    ];
+
+    // Create a cell for each column in the correct order
+    columns.forEach((columnData) => {
+        const cell = document.createElement('td');
+        cell.textContent = columnData;
+        row.appendChild(cell);
+    });
+
+    // Remove button
     const removeButton = document.createElement('button');
     removeButton.textContent = 'Remove';
+    removeButton.classList.add('remove-btn');
     removeButton.addEventListener('click', () => removeReservation(reservation, row));
+    const removeCell = document.createElement('td');
     removeCell.appendChild(removeButton);
     row.appendChild(removeCell);
 
     reservationTable.appendChild(row);
 }
 
-function loadReservations() {
-    reservations.forEach(addReservationToTable);
-}
-
-loadReservations();
-
-// Remove reservation from table and store it for undo functionality
 function removeReservation(reservation, row) {
-    removedReservations.push(reservation);  // Push to removedReservations array
+    removedReservations.push(reservation);
     reservations = reservations.filter(r => r !== reservation);
     localStorage.setItem('reservations', JSON.stringify(reservations));
-    row.remove();
+    reservationTable.removeChild(row);
 }
 
-// Undo Last functionality
-undoLastButton.addEventListener('click', () => {
-    if (removedReservations.length > 0) {
-        const lastRemoved = removedReservations.pop();  // Get the most recent removed reservation
-        reservations.push(lastRemoved);
-        localStorage.setItem('reservations', JSON.stringify(reservations));
-        addReservationToTable(lastRemoved);
-    }
-});
-
-// Copy table to clipboard
 copyTableButton.addEventListener('click', () => {
     let tableData = '';
     const rows = reservationTable.querySelectorAll('tr');
-    rows.forEach(row => {
+    rows.forEach((row) => {
         const cells = row.querySelectorAll('td');
         let rowData = '';
-        cells.forEach(cell => {
-            rowData += cell.textContent + '\t';  // Add tab between columns
+        cells.forEach((cell, index) => {
+            rowData += cell.textContent.trim() + (index < cells.length - 1 ? '\t' : '');
         });
-        tableData += rowData.trim() + '\n';  // Add newline after each row
+        tableData += rowData + '\n';
     });
+
     navigator.clipboard.writeText(tableData).then(() => {
-        alert('Table copied to clipboard!');
+        alert('Table copied to clipboard! You can now paste it into Excel.');
     }).catch(err => {
         alert('Failed to copy table: ' + err);
     });
 });
 
-// Clear All functionality
 clearAllButton.addEventListener('click', () => {
-    if (confirm('Are you sure you want to clear all reservations?')) {
-        reservations = [];
-        removedReservations = [];
-        localStorage.removeItem('reservations');
-        reservationTable.innerHTML = '';  // Clear the table
+    reservations = [];
+    localStorage.setItem('reservations', JSON.stringify(reservations));
+    reservationTable.innerHTML = '';
+});
+
+undoLastButton.addEventListener('click', () => {
+    if (removedReservations.length > 0) {
+        const lastRemoved = removedReservations.pop();
+        reservations.push(lastRemoved);
+        localStorage.setItem('reservations', JSON.stringify(reservations));
+        addReservationToTable(lastRemoved);
+    } else {
+        alert('No more reservations to undo!');
     }
 });
+
+// Load existing reservations from localStorage
+reservations.forEach(addReservationToTable);
