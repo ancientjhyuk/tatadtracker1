@@ -77,6 +77,10 @@ button:disabled {
     cursor: not-allowed;
 }
 
+button.copy {
+    background: #28a745;
+}
+
 button.clear {
     background: #dc3545;
 }
@@ -85,10 +89,23 @@ button.undo {
     background: #ffc107;
 }
 
-button.add {
-    background: #28a745;
+button.redo {
+    background: #17a2b8; /* New redo button style */
 }
 
-button.copy-table {
-    background: #28a745; /* Green color */
+button.add {
+    background: #007bff;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: #c82333;
 }
