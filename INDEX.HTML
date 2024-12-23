@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        button.clear {
+            background: #dc3545;
+        }
+
+        button.undo {
+            background: #ffc107;
+        }
+
+        button.add {
+            background: #28a745;
+        }
+
+        button.copy-table {
+            background: #28a745; /* Green color */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reservation Tracker</h1>
+
+        <form id="reservationForm">
+            <div class="form-group hidden">
+                <label for="date">Date:</label>
+                <input type="text" id="date" name="date" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="time">Time:</label>
+                <input type="text" id="time" name="time" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="agentName">Agent Name:</label>
+                <input type="text" id="agentName" name="agentName" value="Enrico Tatad Jr." readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="dk">DK:</label>
+                <input type="text" id="dk" name="dk" value="AMN100" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="pcc">PCC:</label>
+                <input type="text" id="pcc" name="pcc" value="F75G" readonly>
+            </div>
+
+            <div class="form-group hidden">
+                <label for="ahFee">AH Fee:</label>
+                <input type="text" id="ahFee" name="ahFee" value="No" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="ptr">PTR:</label>
+                <input type="text" id="ptr" name="ptr">
+            </div>
+
+            <div class="form-group">
+                <label for="passengerName">Passenger Name:</label>
+                <input type="text" id="passengerName" name="passengerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="callerName">Caller Name:</label>
+                <input type="text" id="callerName" name="callerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pnr">PNR:</label>
+                <input type="text" id="pnr" name="pnr" required>
+            </div>
+
+            <div class="form-group">
+                <label for="source">Source:</label>
+                <select id="source" name="source">
+                    <option value="Email">Email</option>
+                    <option value="Service Call">Service Call</option>
+                    <option value="Queue">Queue</option>
+                    <option value="Salesforce">Salesforce</option>
+                    <option value="Outbound Call">Outbound Call</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="transaction">Transaction:</label>
+                <select id="transaction" name="transaction">
+                    <option value="Airline Schedule Change">Airline Schedule Change</option>
+                    <option value="Exchange">Exchange</option>
+                    <option value="Cancellation / Void">Cancellation / Void</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Ghost Call">Ghost Call</option>
+                    <option value="PTR Cancelled">PTR Cancelled</option>
+                    <option value="Reconfirmation / Follow up">Reconfirmation / Follow up</option>
+                    <option value="Payment Issue">Payment Issue</option>
+                    <option value="New Booking">New Booking</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Remarks:</label>
+                <textarea id="remarks" name="remarks" rows="3"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="add">Add Reservation</button>
+                <button type="button" class="copy-table" id="copyTable">Copy Table</button>
+                <button type="button" class="clear" id="clearAll">Clear All</button>
+                <button type="button" class="undo" id="undoLast">Undo</button>
+            </div>
+        </form>
+
+        <table id="reservationTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>PTR</th>
+                    <th>Agent Name</th>
+                    <th>Passenger Name</th>
+                    <th>Caller Name</th>
+                    <th>DK</th>
+                    <th>PCC</th>
+                    <th>PNR</th>
+                    <th>Source</th>
+                    <th>Transaction</th>
+                    <th>AH Fee</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const reservationForm = document.getElementById('reservationForm');
+        const reservationTable = document.getElementById('reservationTable').querySelector('tbody');
+        const copyTableButton = document.getElementById('copyTable');
+        const clearAllButton = document.getElementById('clearAll');
+        const undoLastButton = document.getElementById('undoLast');
+
+        let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+        let removedReservations = [];  // Track multiple removed reservations
+
+        // Function to get current date and time in Central Time
+        function updateCentralTime() {
+            const options = { timeZone: 'America/Chicago', hour12: true };
+            const date = new Date().toLocaleDateString('en-US', options);
+            const time = new Date().toLocaleTimeString('en-US', options);
+            return { date, time };
+        }
+
+        function updateTimestamps() {
+            const { date, time } = updateCentralTime();
+            document.getElementById('date').value = date;
+            document.getElementById('time').value = time;
+        }
+
+        reservationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(reservationForm);
+            const newReservation = {};
+            for (const [key, value] of formData.entries()) {
+                newReservation[key] = value;
+            }
+
+            // Ensure date and time are updated for the first reservation
+            if (!newReservation.date || !newReservation.time) {
+                updateTimestamps(); // Set the current time and date on form submission
+                newReservation.date = document.getElementById('date').value;
+                newReservation.time = document.getElementById('time').value;
+            }
+
+            reservations.push(newReservation);
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+
+            addReservationToTable(newReservation);
+
+            reservationForm.reset();
+            updateTimestamps();  // Reset time and date after adding new reservation
+        });
+
+        function addReservationToTable(reservation) {
+            const row = document.createElement('tr');
+            for (const key in reservation) {
+                const cell = document.createElement('td');
+                cell.textContent = reservation[key];
+                row.appendChild(cell);
+            }
+
+            const removeCell = document.createElement('td');
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.addEventListener('click', () => removeReservation(reservation, row));
+            removeCell.appendChild(removeButton);
+            row.appendChild(removeCell);
+
+            reservationTable.appendChild(row);
+        }
+
+        function loadReservations() {
+            reservations.forEach(addReservationToTable);
+        }
+
+        loadReservations();
+
+        // Remove reservation from table and store it for undo functionality
+        function removeReservation(reservation, row) {
+            removedReservations.push(reservation);  // Push to removedReservations array
+            reservations = reservations.filter(r => r !== reservation);
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+            row.remove();
+        }
+
+        // Undo Last functionality
+        undoLastButton.addEventListener('click', () => {
+            if (removedReservations.length > 0) {
+                const lastRemoved = removedReservations.pop();  // Get the most recent removed reservation
+                reservations.push(lastRemoved);
+                localStorage.setItem('reservations', JSON.stringify(reservations));
+                addReservationToTable(lastRemoved);
+            }
+        });
+
+        // Copy table to clipboard
+        copyTableButton.addEventListener('click', () => {
+            let tableData = '';
+            const rows = reservationTable.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let rowData = '';
+                cells.forEach(cell => {
+                    rowData += cell.textContent + '\t';  // Add tab between columns
+                });
+                tableData += rowData.trim() + '\n';  // Add newline after each row
+            });
+            navigator.clipboard.writeText(tableData).then(() => {
+                alert('Table copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy table: ' + err);
+            });
+        });
+
+        // Clear All functionality
+        clearAllButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all reservations?')) {
+                reservations = [];
+                removedReservations = [];
+                localStorage.removeItem('reservations');
+                reservationTable.innerHTML = '';  // Clear the table
+            }
+        });
+    </script>
+</body>
+</html>
