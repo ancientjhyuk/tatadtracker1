@@ -5,7 +5,7 @@ const clearAllButton = document.getElementById('clearAll');
 const undoLastButton = document.getElementById('undoLast');
 
 let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
-let removedReservations = [];  // Track removed reservations for undo
+let removedReservations = [];
 
 // Function to get current date and time in Central Time
 function updateCentralTime() {
@@ -15,16 +15,17 @@ function updateCentralTime() {
     return { date, time };
 }
 
-// Function to update date and time fields
+// Function to update hidden date and time fields
 function updateTimestamps() {
     const { date, time } = updateCentralTime();
     document.getElementById('date').value = date;
     document.getElementById('time').value = time;
 }
 
-// Update timestamps when the page loads
+// Load data and populate hidden fields on page load
 document.addEventListener('DOMContentLoaded', () => {
     updateTimestamps();
+    reservations.forEach(addReservationToTable);
 });
 
 // Handle form submission
@@ -36,101 +37,82 @@ reservationForm.addEventListener('submit', (e) => {
         newReservation[key] = value;
     }
 
-    // Automatically update date and time if not provided
-    if (!newReservation.date || !newReservation.time) {
-        updateTimestamps(); // Set the current time and date on form submission
-        newReservation.date = document.getElementById('date').value;
-        newReservation.time = document.getElementById('time').value;
-    }
-
+    // Add reservation to array and localStorage
     reservations.push(newReservation);
     localStorage.setItem('reservations', JSON.stringify(reservations));
     addReservationToTable(newReservation);
+
     reservationForm.reset();
-    updateTimestamps(); // Update time after submitting
+    updateTimestamps();
 });
 
 function addReservationToTable(reservation) {
     const row = document.createElement('tr');
-
-    // Add table data in the required order
     const columns = [
-        reservation.date,  // Date
-        reservation.time,  // Time
-        reservation.ptr,   // PTR
-        reservation.agentName || 'Enrico Tatad Jr.',  // Agent Name
-        reservation.passengerName,  // Passenger Name
-        reservation.callerName,     // Caller Name
-        'AMN100',  // DK (fixed value)
-        'F75G',     // PCC (fixed value)
-        reservation.pnr,  // PNR
-        reservation.source,  // Source
-        reservation.transaction || 'N/A',  // Transaction (Optional)
-        'No',  // AH Fee (fixed value)
-        reservation.remarks  // Remarks
+        reservation.date,
+        reservation.time,
+        reservation.ptr,
+        reservation.agentName,
+        reservation.passengerName,
+        reservation.callerName,
+        'AMN100', // DK (fixed)
+        'F75G',   // PCC (fixed)
+        reservation.pnr,
+        reservation.source,
+        reservation.transaction || 'N/A',
+        'No', // AH Fee (fixed)
+        reservation.remarks
     ];
 
-    // Create a cell for each column in the correct order
-    columns.forEach((columnData) => {
+    columns.forEach((col) => {
         const cell = document.createElement('td');
-        cell.textContent = columnData;
+        cell.textContent = col;
         row.appendChild(cell);
     });
 
-    // Remove button
+    // Add remove button
     const removeButton = document.createElement('button');
     removeButton.textContent = 'Remove';
     removeButton.classList.add('remove-btn');
-    removeButton.addEventListener('click', () => removeReservation(reservation, row));
-    const removeCell = document.createElement('td');
-    removeCell.appendChild(removeButton);
-    row.appendChild(removeCell);
+    removeButton.addEventListener('click', () => removeReservation(row, reservation));
+    const actionsCell = document.createElement('td');
+    actionsCell.appendChild(removeButton);
+    row.appendChild(actionsCell);
 
     reservationTable.appendChild(row);
 }
 
-function removeReservation(reservation, row) {
-    removedReservations.push(reservation);
-    reservations = reservations.filter(r => r !== reservation);
+// Remove reservation from table and array
+function removeReservation(row, reservation) {
+    row.remove();
+    reservations = reservations.filter((res) => res !== reservation);
     localStorage.setItem('reservations', JSON.stringify(reservations));
-    reservationTable.removeChild(row);
+    removedReservations.push(reservation);
 }
 
-copyTableButton.addEventListener('click', () => {
-    let tableData = '';
-    const rows = reservationTable.querySelectorAll('tr');
-    rows.forEach((row) => {
-        const cells = row.querySelectorAll('td');
-        let rowData = '';
-        cells.forEach((cell, index) => {
-            rowData += cell.textContent.trim() + (index < cells.length - 1 ? '\t' : '');
-        });
-        tableData += rowData + '\n';
-    });
-
-    navigator.clipboard.writeText(tableData).then(() => {
-        alert('Table copied to clipboard! You can now paste it into Excel.');
-    }).catch(err => {
-        alert('Failed to copy table: ' + err);
-    });
-});
-
+// Clear all reservations
 clearAllButton.addEventListener('click', () => {
-    reservations = [];
-    localStorage.setItem('reservations', JSON.stringify(reservations));
     reservationTable.innerHTML = '';
+    localStorage.removeItem('reservations');
+    reservations = [];
+    removedReservations = [];
 });
 
+// Undo last removal
 undoLastButton.addEventListener('click', () => {
     if (removedReservations.length > 0) {
         const lastRemoved = removedReservations.pop();
         reservations.push(lastRemoved);
         localStorage.setItem('reservations', JSON.stringify(reservations));
         addReservationToTable(lastRemoved);
-    } else {
-        alert('No more reservations to undo!');
     }
 });
 
-// Load existing reservations from localStorage
-reservations.forEach(addReservationToTable);
+// Copy table to clipboard
+copyTableButton.addEventListener('click', () => {
+    const rows = Array.from(reservationTable.querySelectorAll('tr')).map((row) =>
+        Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent).join('\t')
+    );
+    const tableText = rows.join('\n');
+    navigator.clipboard.writeText(tableText).then(() => alert('Table copied to clipboard!'));
+});
