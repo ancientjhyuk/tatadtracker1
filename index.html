@@ -12,18 +12,12 @@
 
         <form id="reservationForm">
             <div class="form-group">
-                <label for="date">Date:</label>
-                <input type="text" id="date" name="date" readonly>
-            </div>
-
-            <div class="form-group">
-                <label for="time">Time:</label>
-                <input type="text" id="time" name="time" readonly>
-            </div>
-
-            <div class="form-group">
                 <label for="agentName">Agent Name:</label>
-                <input type="text" id="agentName" name="agentName" value="Enrico Tatad Jr." readonly>
+                <select id="agentName" name="agentName">
+                    <option value="Enrico Tatad Jr.">Enrico Tatad Jr.</option>
+                    <option value="Marlow Aceberos">Marlow Aceberos</option>
+                    <option value="Jackielyn Molas">Jackielyn Molas</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -77,6 +71,10 @@
                 <textarea id="remarks" name="remarks" rows="3"></textarea>
             </div>
 
+            <!-- Hidden Fields for Date and Time -->
+            <input type="hidden" id="date" name="date">
+            <input type="hidden" id="time" name="time">
+
             <div class="button-group">
                 <button type="submit" class="add">Add Reservation</button>
                 <button type="button" class="copy" id="copyTable">Copy Table</button>
@@ -101,7 +99,7 @@
                     <th>Transaction</th>
                     <th>AH Fee</th>
                     <th>Remarks</th>
-                    <th>Action</th> <!-- Add extra column for Remove button -->
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody></tbody>
