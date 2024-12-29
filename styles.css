@@ -52,10 +52,6 @@ input, select, textarea {
     border-radius: 4px;
 }
 
-.hidden {
-    display: none;
-}
-
 .button-group {
     display: flex;
     flex-wrap: wrap;
@@ -72,11 +68,6 @@ button {
     cursor: pointer;
 }
 
-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
 button.copy {
     background: #28a745;
 }
@@ -87,10 +78,6 @@ button.clear {
 
 button.undo {
     background: #ffc107;
-}
-
-button.redo {
-    background: #17a2b8; /* New redo button style */
 }
 
 button.add {
