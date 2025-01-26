@@ -4,7 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Add your CSS styling here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .button-group button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -36,34 +132,54 @@
                 <input type="text" id="callerName" name="callerName" required>
             </div>
 
+            <!-- Rule Class Field -->
+            <div class="form-group">
+                <label for="ruleClass">Rule Class:</label>
+                <select id="ruleClass" name="ruleClass">
+                    <option value="AMN HP PLS Locum (Salesforce)">AMN HP PLS Locum (Salesforce)</option>
+                    <option value="AMN Corporate Team Member">AMN Corporate Team Member</option>
+                    <option value="AMN Corporate Executive">AMN Corporate Executive</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="pnr">PNR:</label>
                 <input type="text" id="pnr" name="pnr" required>
             </div>
 
+            <!-- Source Field -->
             <div class="form-group">
                 <label for="source">Source:</label>
                 <select id="source" name="source">
-                    <option value="Email">Email</option>
-                    <option value="Service Call">Service Call</option>
-                    <option value="Queue">Queue</option>
-                    <option value="Salesforce">Salesforce</option>
                     <option value="Outbound Call">Outbound Call</option>
+                    <option value="Inbound Email">Inbound Email</option>
+                    <option value="Outbound Email">Outbound Email</option>
+                    <option value="Callback Request">Callback Request</option>
+                    <option value="Chatter">Chatter</option>
                 </select>
             </div>
 
+            <!-- Transaction Field -->
             <div class="form-group">
-                <label for="transaction">Transaction (Optional):</label>
+                <label for="transaction">Transaction:</label>
                 <select id="transaction" name="transaction">
                     <option value="Airline Schedule Change">Airline Schedule Change</option>
-                    <option value="Exchange">Exchange</option>
-                    <option value="Cancellation / Void">Cancellation / Void</option>
+                    <option value="Cancellation">Cancellation</option>
+                    <option value="Booking Change">Booking Change</option>
+                    <option value="Booking Change - Inquiry">Booking Change - Inquiry</option>
                     <option value="General Inquiry">General Inquiry</option>
                     <option value="Ghost Call">Ghost Call</option>
-                    <option value="PTR Cancelled">PTR Cancelled</option>
-                    <option value="Reconfirmation / Follow up">Reconfirmation / Follow up</option>
-                    <option value="Payment Issue">Payment Issue</option>
                     <option value="New Booking">New Booking</option>
+                    <option value="New Booking - Inquiry">New Booking - Inquiry</option>
+                    <option value="Payment Issue">Payment Issue</option>
+                    <option value="Transferred Call">Transferred Call</option>
+                    <option value="Name Correction">Name Correction</option>
+                    <option value="Dupe Booking/PTR">Dupe Booking/PTR</option>
+                    <option value="Reconfirmation">Reconfirmation</option>
+                    <option value="Passenger Data Update">Passenger Data Update</option>
+                    <option value="Air Extra Request/Inquiry">Air Extra Request/Inquiry</option>
+                    <option value="Create/update case request">Create/update case request</option>
+                    <option value="Invoice Request">Invoice Request</option>
                 </select>
             </div>
 
@@ -93,12 +209,10 @@
                     <th>Agent Name</th>
                     <th>Passenger Name</th>
                     <th>Caller Name</th>
-                    <th>DK</th>
-                    <th>PCC</th>
+                    <th>Rule Class</th>
                     <th>PNR</th>
                     <th>Source</th>
                     <th>Transaction</th>
-                    <th>AH Fee</th>
                     <th>Remarks</th>
                     <th>Actions</th>
                 </tr>
@@ -107,6 +221,112 @@
         </table>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const reservationForm = document.getElementById('reservationForm');
+        const reservationTable = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
+        const copyButton = document.getElementById('copyTable');
+        const clearButton = document.getElementById('clearAll');
+        const undoButton = document.getElementById('undoLast');
+        let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+        let removedReservations = [];
+
+        // Function to get current date and time in Central Time with a custom format
+        function updateCentralTime() {
+            const options = { timeZone: 'America/Chicago', hour12: true };
+            const date = new Date().toLocaleString('en-US', { ...options, hour: '2-digit', minute: '2-digit', second: '2-digit', year: 'numeric', month: '2-digit', day: '2-digit' });
+            return date;
+        }
+
+        // Function to update the reservation table
+        function updateTable() {
+            reservationTable.innerHTML = '';
+            reservations.forEach((reservation, index) => {
+                const row = reservationTable.insertRow();
+                row.innerHTML = `
+                    <td>${reservation.date}</td>
+                    <td>${reservation.time}</td>
+                    <td>${reservation.ptr}</td>
+                    <td>${reservation.agentName}</td>
+                    <td>${reservation.passengerName}</td>
+                    <td>${reservation.callerName}</td>
+                    <td>${reservation.ruleClass}</td>
+                    <td>${reservation.pnr}</td>
+                    <td>${reservation.source}</td>
+                    <td>${reservation.transaction}</td>
+                    <td>${reservation.remarks}</td>
+                    <td><button class="remove-btn" onclick="removeReservation(${index})">Remove</button></td>
+                `;
+            });
+        }
+
+        // Add reservation to table and localStorage
+        reservationForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const reservation = {
+                date: updateCentralTime().split(',')[0],
+                time: updateCentralTime().split(',')[1],
+                ptr: document.getElementById('ptr').value,
+                agentName: document.getElementById('agentName').value,
+                passengerName: document.getElementById('passengerName').value,
+                callerName: document.getElementById('callerName').value,
+                ruleClass: document.getElementById('ruleClass').value,
+                pnr: document.getElementById('pnr').value,
+                source: document.getElementById('source').value,
+                transaction: document.getElementById('transaction').value,
+                remarks: document.getElementById('remarks').value,
+            };
+
+            reservations.push(reservation);
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+            updateTable();
+            reservationForm.reset();
+        });
+
+        // Function to remove a reservation
+        function removeReservation(index) {
+            const removed = reservations.splice(index, 1);
+            removedReservations.push(removed[0]);
+            localStorage.setItem('reservations', JSON.stringify(reservations));
+            updateTable();
+        }
+
+        // Function to clear all reservations
+        clearButton.addEventListener('click', function () {
+            reservations = [];
+            removedReservations = [];
+            localStorage.removeItem('reservations');
+            updateTable();
+        });
+
+        // Function to undo the last removed reservation
+        undoButton.addEventListener('click', function () {
+            const lastRemoved = removedReservations.pop();
+            if (lastRemoved) {
+                reservations.push(lastRemoved);
+                localStorage.setItem('reservations', JSON.stringify(reservations));
+                updateTable();
+            }
+        });
+
+        // Function to copy table data
+        copyButton.addEventListener('click', function () {
+            let tableData = '';
+            reservations.forEach(reservation => {
+                tableData += `${reservation.date}\t${reservation.time}\t${reservation.ptr}\t${reservation.agentName}\t${reservation.passengerName}\t${reservation.callerName}\t${reservation.ruleClass}\t${reservation.pnr}\t${reservation.source}\t${reservation.transaction}\t${reservation.remarks}\n`;
+            });
+
+            const textArea = document.createElement('textarea');
+            textArea.value = tableData;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            alert('Table data copied to clipboard!');
+        });
+
+        // Initialize the table on page load
+        updateTable();
+    </script>
 </body>
 </html>
